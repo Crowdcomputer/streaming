@@ -86,6 +86,11 @@ LOGGING = {
             'propagate': True,
             'level': LEVEL,
         },
+        'rest_framework': {
+            'handlers': HANDLER,
+            'propagate': True,
+            'level': LEVEL,
+        },
         'django.db.backends': {
             'handlers': HANDLER,
             'propagate': False,

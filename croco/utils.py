@@ -89,24 +89,22 @@ def signal_event_from_list(task, event, data):
     :param data:
     :return:
     """
-
     username = ACTIVITI_USERNAME
     password = ACTIVITI_PASSWORD
-    # http://localhost:8080/activiti-rest/service/process-instance/149/signal
     url = ACTIVITI_URL + "/query/executions"
-    dumps = json.dumps(dict(processDefinitionId=task.activiti_definition_id, messageEventSubscriptionName=task.message_name))
+    dumps = json.dumps(dict(processDefinitionId=task.activiti_definition_id, messageEventSubscriptionName=event.message_name))
     response = requests.post(url, data=dumps, auth=HTTPBasicAuth(username, password))
     responsedata = response.json()['data']
     # if two users joins at the same time we are screwed
     if len(responsedata) > 0:
         # if message_name:
-        return signal_message(str(responsedata[0]['id']), event.name, task.data_name,  data)
+        return signal_message(str(responsedata[0]['id']), event.message_name, task.data_name,  data)
         # else:
         #     return signal(str(responsedata[0]['id']), str(len(responsedata)))
     return False
 
 
-def process_events(task, data):
+def process_events(task):
     """
     Checks all the events and calls the events.
     It may take a while.
@@ -118,20 +116,34 @@ def process_events(task, data):
     for event in task.events.all():
         if event.type == "M":
             # it's multiply, then send the event many times
+            data = task.data.all()
+            last_data = data[len(data)-1]
             for i in range(0, event.factor):
-                send_event(task, event, data)
-                logging.debug("Sent %s %s repeated %s" % (event.name, data, event.factor))
+                send_event(task, event,  json.dumps([last_data.get_data]))
         else:
             # it's group
-            datas = task.datas.all()
+            datas = task.data.all()
             # since we wnat them grouped, if the len is multipe of the group we send.
-            if len(datas) % event.factor == 0:
+
+            if len(datas) > 0 and len(datas) % event.factor == 0:
                 # takes the last factor elements.
-                data = datas[-event.factor:]
-                send_event(task, event, data)
-                logging.debug("Sent %s %s grouped by %s" % (event.name, data, event.factor))
+                # BUG?: negative index here does not work
+                index = len(datas)-event.factor
+                # print "%s %s " % (index, -event.factor)
+                # d = datas[:]
+                # print datas
+                t_data = datas[index:]
+                j_data = []
+                for d in t_data:
+                    j_data.append(d.get_data)
+                # print "%s %s" % (data, da[-event.factor:])
+                json.dumps(j_data)
+                send_event(task, event, json.dumps(j_data))
+                # print ("Sent %s %s grouped by %s" % (event.message_name,  data, event.factor))
 
 
 def send_event(task, event, data):
+    # TODO: re-enable this
+    print "send event %s (%s:%s) data  %s" % (event.message_name, event.factor, event.type, data)
     # it should work also if't just 1 element
-    signal_event_from_list(task,event,data)
+    # signal_event_from_list(task,event,data)
