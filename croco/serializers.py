@@ -14,7 +14,7 @@ class EventSerializer(serializers.ModelSerializer):
 
 
 class TaskSerializer(serializers.ModelSerializer):
-    pk = serializers.ReadOnlyField()
+    id = serializers.ReadOnlyField()
 
     # data = serializers.SlugRelatedField(many=True, read_only=True, slug_field="get_data")
     events = EventSerializer(many=True, read_only=False)
@@ -30,6 +30,6 @@ class TaskSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = ("pk", "name", "events", "data_name", "activiti_definition_id", "completeness")
-        read_only = ("cf_id", "executions")
+        fields = ("id", "name", "events", "data_name", "activiti_definition_id", "completeness","cf_id")
+        read_only =  ("executions")
 

@@ -14,7 +14,10 @@ from rest_framework.status import HTTP_204_NO_CONTENT
 from croco.models import Task, TaskData
 from croco.serializers import TaskSerializer
 from croco.utils import process_events
+from flower import Flower
 
+API_KEY = "Za1_xHjcTFh-ebaxQhyZ"
+CURRENT_URL = "http://.."
 
 class TaskView(viewsets.ModelViewSet):
     """
@@ -23,6 +26,30 @@ class TaskView(viewsets.ModelViewSet):
     queryset = Task.objects.all()
     model = Task
     serializer_class = TaskSerializer
+
+    def __transform_list(self, data):
+        data = json.loads(data)
+        if not isinstance(data, list):
+            return data
+        else:
+            res = dict()
+            i=0
+            for el in data:
+                res["cc_data_"+str(i)] = el
+                i+=1
+            return res
+
+    def __transform_results(self, input, output):
+        # are both dictionaries
+        # this combines data with unit_data
+        # https://success.crowdflower.com/hc/en-us/articles/202703445-CrowdFlower-API-Integrating-with-the-API
+        data = json.loads(input)
+        out = json.loads(output)
+        if not isinstance(data, dict):
+            print "not a dict"
+            return data
+        else:
+            return data.update(out)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -33,17 +60,29 @@ class TaskView(viewsets.ModelViewSet):
             self.perform_create(serializer)
             headers = self.get_success_headers(serializer.data)
             # TODO PAVEL: update the webhook url here..
+            from flower import Flower
+            # update webhook_uri
+            flower = Flower(API_KEY)
+            webhook_settings = {
+                    'send_judgments_webhook': True,
+                    'webhook_uri': CURRENT_URL + str(serializer.data['id'])
+                }
+            u1 = flower.updateJob(serializer.data['cf_id'],webhook_settings)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         else:
-            return Response(dict(pk=existing_task[0].pk), status=status.HTTP_200_OK)
+            return Response(dict(id=existing_task[0].id), status=status.HTTP_200_OK)
 
 
     @detail_route(methods=['post'], url_path="start")
     def start(self, request, pk=None):
+        # this is called by the BPMN
         task = get_object_or_404(Task, pk=pk)
         task.add_instances()
-        data = request.DATA
-#       TODO PAVEL: call crowdflower,
+        # it should be always an object
+        data = self.__transform_list(request.DATA['data'])
+        flower = Flower(API_KEY)
+        cf_task = flower.uploadUnit(task.cf_id, data)
+        print cf_task.text
         return HttpResponse(status=HTTP_204_NO_CONTENT)
 
 
@@ -57,9 +96,17 @@ class TaskView(viewsets.ModelViewSet):
         :param pk:
         :return:
         """
-        task = get_object_or_404(Task,pk=pk)
+        task = get_object_or_404(Task, pk=pk)
         if request.method == "POST":
-            task.add_data(request.DATA)
+            # data from CF.
+            # TODO: check if the signal is.
+            # TODO: from here it seems that it's indentated
+            # https://success.crowdflower.com/hc/en-us/articles/202703445-CrowdFlower-API-Integrating-with-the-API
+            judgments = request.DATA['judgments']
+            # we assume that only 1 at time is posted by CF
+            # it should be like that.
+            # we merge input and output..
+            task.add_data(self.__transform_results(judgments[0]['unit_data'], judgments[0]['data']))
             return HttpResponse(status=HTTP_204_NO_CONTENT)
         else:
             return HttpResponse(json.dumps([td.get_data for td in task.data.all()]))
