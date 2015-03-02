@@ -57,3 +57,4 @@ croco/migrations
 db.sqlite3
 .gitignore.orig
 .dat3fa0.004
+settings.py
