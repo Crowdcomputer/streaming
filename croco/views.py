@@ -82,7 +82,7 @@ class TaskView(viewsets.ModelViewSet):
         data = self.__transform_list(request.DATA['data'])
         flower = Flower(API_KEY)
         cf_task = flower.uploadUnit(task.cf_id, data)
-        print cf_task.text
+        logging.debug(cf_task.text)
         return HttpResponse(status=HTTP_204_NO_CONTENT)
 
 
