@@ -15,9 +15,8 @@ from croco.models import Task, TaskData
 from croco.serializers import TaskSerializer
 from croco.utils import process_events
 from flower import Flower
+from streaming.settings import API_KEY, CURRENT_URL
 
-API_KEY = "Za1_xHjcTFh-ebaxQhyZ"
-CURRENT_URL = "http://.."
 
 class TaskView(viewsets.ModelViewSet):
     """
@@ -65,7 +64,7 @@ class TaskView(viewsets.ModelViewSet):
             flower = Flower(API_KEY)
             webhook_settings = {
                     'send_judgments_webhook': True,
-                    'webhook_uri': CURRENT_URL + str(serializer.data['id'])
+                    'webhook_uri': CURRENT_URL % str(serializer.data['id'])
                 }
             u1 = flower.updateJob(serializer.data['cf_id'],webhook_settings)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
