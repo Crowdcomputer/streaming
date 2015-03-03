@@ -108,7 +108,8 @@ class TaskView(viewsets.ModelViewSet):
             # we assume that only 1 at time is posted by CF
             # it should be like that.
             # we merge input and output..
-            task.add_data(self.__transform_results(judgments[0]['unit_data'], judgments[0]['data']))
+            if judgments:
+                task.add_data(self.__transform_results(judgments[0]['unit_data'], judgments[0]['data']))
             return HttpResponse(status=HTTP_200_OK)
         else:
             return HttpResponse(json.dumps([td.get_data for td in task.data.all()]))
