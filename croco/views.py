@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, routers, status
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
-from rest_framework.status import HTTP_204_NO_CONTENT
+from rest_framework.status import HTTP_204_NO_CONTENT, HTTP_200_OK
 from croco.models import Task, TaskData
 from croco.serializers import TaskSerializer
 from croco.utils import process_events
@@ -106,7 +106,7 @@ class TaskView(viewsets.ModelViewSet):
             # it should be like that.
             # we merge input and output..
             task.add_data(self.__transform_results(judgments[0]['unit_data'], judgments[0]['data']))
-            return HttpResponse(status=HTTP_204_NO_CONTENT)
+            return HttpResponse(status=HTTP_200_OK)
         else:
             return HttpResponse(json.dumps([td.get_data for td in task.data.all()]))
 
