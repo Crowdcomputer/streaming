@@ -40,5 +40,5 @@ class Flower:
     def parseWebhook(response_data):
         if response_data['signal'] == 'unit_complete':
             data = json.loads(response_data['payload'])
-            return data['results']['judgements']
+            return data['results']['judgments']
         return False
