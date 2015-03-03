@@ -17,6 +17,7 @@ from croco.utils import process_events
 from flower import Flower
 from streaming.settings import API_KEY, CURRENT_URL
 
+logger = logging.getLogger(__name__)
 
 class TaskView(viewsets.ModelViewSet):
     """
@@ -81,7 +82,7 @@ class TaskView(viewsets.ModelViewSet):
         data = self.__transform_list(request.DATA['data'])
         flower = Flower(API_KEY)
         cf_task = flower.uploadUnit(task.cf_id, data)
-        logging.debug(cf_task.text)
+        logger.debug(cf_task.text)
         return HttpResponse(status=HTTP_204_NO_CONTENT)
 
 
@@ -102,9 +103,7 @@ class TaskView(viewsets.ModelViewSet):
             # TODO: check if the signal is.
             # TODO: from here it seems that it's indentated
             # https://success.crowdflower.com/hc/en-us/articles/202703445-CrowdFlower-API-Integrating-with-the-API
-            out_file = open("test.txt","w")
-            out_file.write("%s" % json.dumps(request.DATA))
-            out_file.close()
+            logger.debug(request.DATA)
             judgments = Flower.parseWebhook(request.DATA)
             # we assume that only 1 at time is posted by CF
             # it should be like that.
