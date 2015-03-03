@@ -101,7 +101,7 @@ class TaskView(viewsets.ModelViewSet):
             # TODO: check if the signal is.
             # TODO: from here it seems that it's indentated
             # https://success.crowdflower.com/hc/en-us/articles/202703445-CrowdFlower-API-Integrating-with-the-API
-            judgments = request.DATA['judgments']
+            judgments = Flower.parseWebhook(request.DATA)
             # we assume that only 1 at time is posted by CF
             # it should be like that.
             # we merge input and output..

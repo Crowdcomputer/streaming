@@ -36,7 +36,8 @@ class Flower:
         }
         return requests.post(request_url, data=json.dumps(data), headers=self.api_headers)
 
-    def parseWebhook(self, response_data):
+    @staticmethod
+    def parseWebhook(response_data):
         if response_data['signal'] == 'unit_complete':
             data = json.loads(response_data['payload'])
             return data['results']['judgements']
