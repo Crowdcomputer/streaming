@@ -125,7 +125,7 @@ def process_events(task):
                 for d in t_data:
                     j_data.append(d.get_data())
                 # print "%s %s" % (data, da[-event.factor:])
-                logger.debug("sending %s",json.dumps(j_data))
+                logger.debug("sending %s", json.dumps(j_data))
 
                 send_event(task, event, j_data)
                 # print ("Sent %s %s grouped by %s" % (event.message_name,  data, event.factor))
@@ -135,5 +135,5 @@ def send_event(task, event, data):
     # TODO: re-enable this
     # print "send event %s (%s:%s) data  %s" % (event.message_name, event.factor, event.type, data)
     # it should work also if't just 1 element
-    logger.debug("Event in charge is %s" % event.message_name)
-    signal_event_from_list(task, event, data)
+    logger.debug("Event in charge is %s: %s" % (event.message_name, data))
+    # signal_event_from_list(task, event, data)
