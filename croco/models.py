@@ -27,7 +27,6 @@ class TaskData(models.Model):
         else:
             self.json_data = data
 
-    @property
     def get_data(self):
         # always return a dict
         return json.loads(self.json_data)
@@ -46,6 +45,8 @@ class Task(models.Model):
     # activiti_activity_id = models.CharField(max_length=255)
 
     def add_data(self, data):
+        if isinstance(data,str):
+            data = json.loads(data)
         self.add_executions()
         if isinstance(data, list):
             # TODO: what happens if there's a splitting and before starting the task?

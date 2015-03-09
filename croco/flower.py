@@ -30,15 +30,15 @@ class Flower:
     def uploadUnit(self, job_id, data):
         request_url = self._getRequestUrl('units', job_id)
         data = {
-        'unit': {
-        'data': data
-        }
+            'unit': {
+            'data': data
+            }
         }
         return requests.post(request_url, data=json.dumps(data), headers=self.api_headers)
 
     @staticmethod
     def parseWebhook(response_data):
         if response_data['signal'] == 'unit_complete':
-            data = json.loads(response_data['payload'])
+            data = response_data['payload']
             return data['results']['judgments']
         return False

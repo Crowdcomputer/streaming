@@ -9,11 +9,12 @@ __author__ = 'Stefano Tranquillini <stefano.tranquillini@gmail.com>'
 
 ACTIVITI_USERNAME = "kermit"
 ACTIVITI_PASSWORD = "kermit"
-ACTIVITI_URL = ""
+ACTIVITI_URL = "http://localhost:8080/activiti-rest/service"
 
+logger = logging.getLogger(__name__)
 
 # def deploy_process(filename, filedata):
-#     files = {'file': (filename, filedata)}
+# files = {'file': (filename, filedata)}
 #     url = ACTIVITI_URL + "/repository/deployments"
 #     response = requests.post(url, files=files, auth=HTTPBasicAuth(ACTIVITI_USERNAME, ACTIVITI_PASSWORD))
 #     if response.status_code == 201:
@@ -32,7 +33,7 @@ ACTIVITI_URL = ""
 #     return processInstanceId, processDefinition
 
 
-def signal_message(id_execution, message, data_name, data):
+def signal_message(id_execution, data_name, data):
     """
     Signals a message for the process
 
@@ -45,38 +46,25 @@ def signal_message(id_execution, message, data_name, data):
     username = ACTIVITI_USERNAME
     password = ACTIVITI_PASSWORD
     url = ACTIVITI_URL + "/runtime/executions/" + id_execution
-    datapick = dict(action='messageEventReceived', messageName=message)
-    variables = list()
-    if not data:
-        data = dict()
-    variables.append(dict(name=data_name, value=data))
+    datapick = dict(action='signal')
+    variables = []
+    # variables.append(createObject("executor_id",user.pk))
+    if data:
+        variables.append(dict(name=data_name, value=data))
     datapick['variables'] = variables
+    # variables.append()
+    # datapick[] = task.parameters['receivers'] + "-pick"
     dumps = json.dumps(datapick)
-    response_signal = requests.put(url, data=dumps, auth=HTTPBasicAuth(username, password))
+    logger.debug("dumping %s" % dumps)
+    response_signal = requests.put(
+        url, data=dumps, auth=HTTPBasicAuth(username, password))
     if response_signal.status_code == 204:
+        logger.debug("Signal ok")
         return True
     else:
+        logger.error("Error %s" % response_signal.text)
         return False
 
-
-# def signal(id_execution, data=None):
-#     username = ACTIVITI_USERNAME
-#     password = ACTIVITI_PASSWORD
-#     url = ACTIVITI_URL + "/runtime/executions/" + id_execution
-#     datapick = dict(action='signal')
-#     variables = []
-#     # variables.append(createObject("executor_id",user.pk))
-#     if data:
-#         variables.append(dict(name="mydata", value=data, scope="global"))
-#     datapick['variables'] = variables
-#     # variables.append()
-#     # datapick[] = task.parameters['receivers'] + "-pick"
-#     dumps = json.dumps(datapick)
-#     response_signal = requests.put(url, data=dumps, auth=HTTPBasicAuth(username, password))
-#     if response_signal.status_code == 204:
-#         return True
-#     else:
-#         return False
 
 
 def signal_event_from_list(task, event, data):
@@ -92,13 +80,14 @@ def signal_event_from_list(task, event, data):
     username = ACTIVITI_USERNAME
     password = ACTIVITI_PASSWORD
     url = ACTIVITI_URL + "/query/executions"
-    dumps = json.dumps(dict(processDefinitionId=task.activiti_definition_id, messageEventSubscriptionName=event.message_name))
+    dumps = json.dumps(
+        dict(processDefinitionId=task.activiti_definition_id, messageEventSubscriptionName=event.message_name))
     response = requests.post(url, data=dumps, auth=HTTPBasicAuth(username, password))
     responsedata = response.json()['data']
     # if two users joins at the same time we are screwed
     if len(responsedata) > 0:
         # if message_name:
-        return signal_message(str(responsedata[0]['id']), event.message_name, task.data_name,  data)
+        return signal_message(str(responsedata[0]['id']), task.data_name, data)
         # else:
         #     return signal(str(responsedata[0]['id']), str(len(responsedata)))
     return False
@@ -117,9 +106,11 @@ def process_events(task):
         if event.type == "M":
             # it's multiply, then send the event many times
             data = task.data.all()
-            last_data = data[len(data)-1]
-            for i in range(0, event.factor):
-                send_event(task, event,  json.dumps([last_data.get_data]))
+            last_data = data[len(data) - 1]
+            # logger.debug("sending %s of %s",(event.factor, last_data.get_data()))
+            for i in range(event.factor):
+
+                send_event(task, event, [last_data.get_data()])
         else:
             # it's group
             datas = task.data.all()
@@ -128,22 +119,21 @@ def process_events(task):
             if len(datas) > 0 and len(datas) % event.factor == 0:
                 # takes the last factor elements.
                 # BUG?: negative index here does not work
-                index = len(datas)-event.factor
-                # print "%s %s " % (index, -event.factor)
-                # d = datas[:]
-                # print datas
+                index = len(datas) - event.factor
                 t_data = datas[index:]
                 j_data = []
                 for d in t_data:
-                    j_data.append(d.get_data)
+                    j_data.append(d.get_data())
                 # print "%s %s" % (data, da[-event.factor:])
-                json.dumps(j_data)
-                send_event(task, event, json.dumps(j_data))
+                logger.debug("sending %s",json.dumps(j_data))
+
+                send_event(task, event, j_data)
                 # print ("Sent %s %s grouped by %s" % (event.message_name,  data, event.factor))
 
 
 def send_event(task, event, data):
     # TODO: re-enable this
-    print "send event %s (%s:%s) data  %s" % (event.message_name, event.factor, event.type, data)
+    # print "send event %s (%s:%s) data  %s" % (event.message_name, event.factor, event.type, data)
     # it should work also if't just 1 element
-    # signal_event_from_list(task,event,data)
+    logger.debug("Event in charge is %s" % event.message_name)
+    signal_event_from_list(task, event, data)
