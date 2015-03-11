@@ -1,6 +1,9 @@
 import json
+import logging
 
 import requests
+
+logger = logging.getLogger(__name__)
 
 
 class Flower:
@@ -41,7 +44,7 @@ class Flower:
         if response_data['signal'] == 'unit_complete':
             # data = response_data['payload']
             payload = response_data['payload']
-            print "type of payload " + str(type(payload[0]))
+            logger.debug("type of payload %s", str(type(payload[0])))
             d_dict = json.loads(payload[0])
             res = d_dict['results']
             jud = res['judgments']
