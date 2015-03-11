@@ -23,7 +23,7 @@ class Flower:
     def updateJob(self, job_id, attrs):
         request_url = self._getRequestUrl('job', job_id)
         data = {
-        'job': attrs
+            'job': attrs
         }
         return requests.put(request_url, data=json.dumps(data), headers=self.api_headers)
 
@@ -31,7 +31,7 @@ class Flower:
         request_url = self._getRequestUrl('units', job_id)
         data = {
             'unit': {
-            'data': data
+                'data': data
             }
         }
         return requests.post(request_url, data=json.dumps(data), headers=self.api_headers)
@@ -40,5 +40,9 @@ class Flower:
     def parseWebhook(response_data):
         if response_data['signal'] == 'unit_complete':
             # data = response_data['payload']
-            return json.loads(response_data['payload'][0])['results']['judgments']
+            payload = response_data['payload']
+            d_dict = json.loads(payload[0])
+            res = d_dict['results']
+            jud = res['judgments']
+            return jud
         return False
