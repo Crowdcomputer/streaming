@@ -44,9 +44,9 @@ class Flower:
         if response_data['signal'] == 'unit_complete':
             payload = response_data['payload']
             # payload['payload']
-            logger.debug("payload %s", payload[0])
-            d_dict = json.loads(payload[0])
-            res = d_dict['results']
+            logger.debug("payload %s", payload)
+            d_dict = json.loads(payload)
+            res = d_dict[0]['results']
             jud = res['judgments']
             return jud
         return False
