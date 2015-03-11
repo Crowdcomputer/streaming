@@ -14,7 +14,7 @@ from rest_framework.status import HTTP_204_NO_CONTENT, HTTP_200_OK
 from croco.models import Task
 from croco.serializers import TaskSerializer
 from flower import Flower
-from streaming.settings import ACTIVITI_USERNAME, ACTIVITI_PASSWORD, ACTIVITI_URL
+from streaming.settings import API_KEY, CURRENT_URL
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +104,7 @@ class TaskView(viewsets.ModelViewSet):
             # TODO: check if the signal is.
             # TODO: from here it seems that it's indentated
             # https://success.crowdflower.com/hc/en-us/articles/202703445-CrowdFlower-API-Integrating-with-the-API
-            data = request.DATA
+            data = request.BODY
             logger.info("DATA:  %s", data)
             logger.debug("AAAA")
             try:

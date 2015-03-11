@@ -3,13 +3,14 @@ import logging
 
 from requests.auth import HTTPBasicAuth
 import requests
+from streaming.settings import ACTIVITI_USERNAME, ACTIVITI_PASSWORD, ACTIVITI_URL
 
 
 __author__ = 'Stefano Tranquillini <stefano.tranquillini@gmail.com>'
 
-ACTIVITI_USERNAME = "kermit"
-ACTIVITI_PASSWORD = "kermit"
-ACTIVITI_URL = "http://localhost:8080/activiti-rest/service"
+# ACTIVITI_USERNAME = "kermit"
+# ACTIVITI_PASSWORD = "kermit"
+# ACTIVITI_URL = "http://localhost:8080/activiti-rest/service"
 
 logger = logging.getLogger(__name__)
 

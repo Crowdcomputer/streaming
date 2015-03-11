@@ -42,9 +42,9 @@ class Flower:
     @staticmethod
     def parseWebhook(response_data):
         if response_data['signal'] == 'unit_complete':
-            # data = response_data['payload']
             payload = response_data['payload']
-            logger.debug("type of payload %s", str(type(payload[0])))
+            # payload['payload']
+            logger.debug("payload %s", payload[0])
             d_dict = json.loads(payload[0])
             res = d_dict['results']
             jud = res['judgments']

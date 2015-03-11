@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
-from croco.models import Event, Task, TaskData
-from croco.utils import process_events
+from croco.models import Event, Task
 
 
 __author__ = 'Stefano Tranquillini <stefano.tranquillini@gmail.com>'
@@ -10,7 +9,7 @@ __author__ = 'Stefano Tranquillini <stefano.tranquillini@gmail.com>'
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        fields = ('type', 'factor','message_name')
+        fields = ('type', 'factor', 'message_name')
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -30,6 +29,6 @@ class TaskSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = ("id", "name", "events", "data_name", "activiti_definition_id", "completeness","cf_id")
-        read_only =  ("executions")
+        fields = ("id", "name", "events", "data_name", "activiti_definition_id", "completeness", "cf_id")
+        read_only = ("executions")
 
