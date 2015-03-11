@@ -46,7 +46,7 @@ class Flower:
             # payload['payload']
             logger.debug("payload %s", payload)
             d_dict = json.loads(payload)
-            res = d_dict[0]['results']
+            res = d_dict['results']
             jud = res['judgments']
             return jud
         return False
