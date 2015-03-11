@@ -41,7 +41,7 @@ class Flower:
         if response_data['signal'] == 'unit_complete':
             # data = response_data['payload']
             payload = response_data['payload']
-            print "type of payload " + type(payload[0])
+            print "type of payload " + str(type(payload[0]))
             d_dict = json.loads(payload[0])
             res = d_dict['results']
             jud = res['judgments']
