@@ -99,14 +99,12 @@ class TaskView(viewsets.ModelViewSet):
         """
         task = get_object_or_404(Task, pk=pk)
         if request.method == "POST":
-
             # data from CF.
             # TODO: check if the signal is.
             # TODO: from here it seems that it's indentated
             # https://success.crowdflower.com/hc/en-us/articles/202703445-CrowdFlower-API-Integrating-with-the-API
-            data = request.BODY
+            data = request.POST
             logger.info("DATA:  %s", data)
-            logger.debug("AAAA")
             try:
                 judgments = Flower.parseWebhook(data)
                 # we assume that only 1 at time is posted by CF
