@@ -3,6 +3,7 @@ import json
 from django.db import models
 from croco.utils import process_events
 
+logger = logging.getLogger(__name__)
 
 class Event(models.Model):
     EVENT_TYPE = (
@@ -65,7 +66,7 @@ class Task(models.Model):
             d.save()
             # then we call
             data = self.data.all()
-            logger.debug("data to process in the event %s ", data)
+            logger.debug("data to process in the event %s", data)
             process_events(self,data)
 
     def add_instances(self):
