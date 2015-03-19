@@ -2,7 +2,7 @@
 import json
 from django.db import models
 from croco.utils import process_events
-
+import logging 
 logger = logging.getLogger(__name__)
 
 class Event(models.Model):
