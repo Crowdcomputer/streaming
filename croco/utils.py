@@ -135,4 +135,4 @@ def send_event(task, event, data):
     # print "send event %s (%s:%s) data  %s" % (event.message_name, event.factor, event.type, data)
     # it should work also if't just 1 element
     logger.debug("Event in charge is %s: %s" % (event.message_name, data))
-    # signal_event_from_list(task, event, data)
+    signal_event_from_list(task, event, data)
