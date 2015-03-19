@@ -108,7 +108,7 @@ def process_events(task, task_data):
             # it's multiply, then send the event many times
             data = task_data
             last_data = data[len(data) - 1]
-            logger.debug("sending %s %s of %s",(even.message_name, event.factor, last_data.get_data()))
+            logger.debug("sending %s %s of %s",(event.message_name, event.factor, last_data.get_data()))
             for i in range(event.factor):
                 send_event(task, event, [last_data.get_data()])
         else:
@@ -125,7 +125,7 @@ def process_events(task, task_data):
                 for d in t_data:
                     j_data.append(d.get_data())
                 # print "%s %s" % (data, da[-event.factor:])
-                logger.debug("sending %s %s of %s",(even.message_name, event.factor, j_data))
+                logger.debug("sending %s %s of %s",(event.message_name, event.factor, j_data))
                 send_event(task, event, j_data)
                 # print ("Sent %s %s grouped by %s" % (event.message_name,  data, event.factor))
 
