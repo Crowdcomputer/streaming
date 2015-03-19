@@ -57,14 +57,15 @@ class Task(models.Model):
                 d.task = self
                 d.save()
                 # then we call
-                process_events(self)
+                process_events(self, d)
         else:
             d = TaskData()
             d.set_data(data)
             d.task = self
             d.save()
             # then we call
-            process_events(self)
+            data = self.data.all()
+            process_events(self,data)
 
     def add_instances(self):
         self.instances += 1

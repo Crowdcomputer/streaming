@@ -45,6 +45,7 @@ class TaskView(viewsets.ModelViewSet):
         # this combines data with unit_data
         # https://success.crowdflower.com/hc/en-us/articles/202703445-CrowdFlower-API-Integrating-with-the-API
         d = dict()
+
         d.update(input)
         d.update(output)
         return d
@@ -78,12 +79,11 @@ class TaskView(viewsets.ModelViewSet):
         task = get_object_or_404(Task, pk=pk)
         task.add_instances()
         # it should be always an object
-        logger.debug(request.DATA['data'])
         data = self.__transform_list(request.DATA['data'])
-        logger.debug("Data to send %s",data)
+        logger.debug("Starting task %s %s with data %s" % (pk,task.cf_id,data))
         flower = Flower(API_KEY)
         cf_task = flower.uploadUnit(task.cf_id, data)
-        logger.debug(cf_task.text)
+        logger.debug("response %s ", cf_task.text)
         return HttpResponse(status=HTTP_204_NO_CONTENT)
 
 
@@ -110,20 +110,15 @@ class TaskView(viewsets.ModelViewSet):
                 # we assume that only 1 at time is posted by CF
                 # it should be like that.
                 # we merge input and output..
-                logger.debug("Here %s", judgments)
-
                 if judgments:
                     transformed = self.__transform_results(judgments[0]['unit_data'], judgments[0]['data'])
-                    logger.debug("Transformed %s",transformed)
                     task.add_data(transformed)
             except Exception as e:
-                logger.debug("here in the execption")
                 logger.exception(e)
                 # task.add_data(data)
             logger.debug("end")
             return HttpResponse(status=HTTP_200_OK)
         else:
-            logger.debug("Response do dump %s ",[td.get_data() for td in task.data.all()])
             return HttpResponse(json.dumps([td.get_data() for td in task.data.all()]))
 
 

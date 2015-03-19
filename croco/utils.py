@@ -94,7 +94,7 @@ def signal_event_from_list(task, event, data):
     return False
 
 
-def process_events(task):
+def process_events(task, task_data):
     """
     Checks all the events and calls the events.
     It may take a while.
@@ -106,15 +106,14 @@ def process_events(task):
     for event in task.events.all():
         if event.type == "M":
             # it's multiply, then send the event many times
-            data = task.data.all()
+            data = task_data
             last_data = data[len(data) - 1]
-            # logger.debug("sending %s of %s",(event.factor, last_data.get_data()))
+            logger.debug("sending %s %s of %s",(even.message_name, event.factor, last_data.get_data()))
             for i in range(event.factor):
-
                 send_event(task, event, [last_data.get_data()])
         else:
             # it's group
-            datas = task.data.all()
+            datas = task_data
             # since we wnat them grouped, if the len is multipe of the group we send.
 
             if len(datas) > 0 and len(datas) % event.factor == 0:
@@ -126,8 +125,7 @@ def process_events(task):
                 for d in t_data:
                     j_data.append(d.get_data())
                 # print "%s %s" % (data, da[-event.factor:])
-                logger.debug("sending %s", json.dumps(j_data))
-
+                logger.debug("sending %s %s of %s",(even.message_name, event.factor, j_data))
                 send_event(task, event, j_data)
                 # print ("Sent %s %s grouped by %s" % (event.message_name,  data, event.factor))
 
