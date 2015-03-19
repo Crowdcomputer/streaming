@@ -65,6 +65,7 @@ class Task(models.Model):
             d.save()
             # then we call
             data = self.data.all()
+            logger.debug("data to process in the event %s ", data)
             process_events(self,data)
 
     def add_instances(self):
