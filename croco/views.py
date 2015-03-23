@@ -58,7 +58,6 @@ class TaskView(viewsets.ModelViewSet):
         if not len(existing_task):
             self.perform_create(serializer)
             headers = self.get_success_headers(serializer.data)
-            # TODO PAVEL: update the webhook url here..
             from flower import Flower
             # update webhook_uri
             flower = Flower(API_KEY)

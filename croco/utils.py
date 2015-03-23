@@ -111,23 +111,38 @@ def process_events(task, task_data):
             logger.debug("sending %s %s of %s",(event.message_name, event.factor, last_data.get_data()))
             for i in range(event.factor):
                 send_event(task, event, [last_data.get_data()])
-        else:
+        elif event.type == "F":
+            # flat, just send the last data, same as the M but without cardinality
+            data = task_data
+            last_data = data[len(data) - 1]
+            logger.debug("sending %s %s of %s",(event.message_name, event.factor, last_data.get_data()))
+            send_event(task, event, [last_data.get_data()])
+        elif event.type == "S":
+            # here is done only over the last data
+            data = task_data
+            last_data = data[len(data) - 1]
+            logger.debug("sending %s %s of %s",(event.message_name, event.factor, last_data.get_data()))
+            if isinstance(last_data, list):
+                for d in last_data:
+                    send_event(task, event, [d.get_data()])
+            else:
+                logger.error("Type is S but object is not a list")
+        elif event.type == "G":
             # it's group
             datas = task_data
             # since we wnat them grouped, if the len is multipe of the group we send.
 
             if len(datas) > 0 and len(datas) % event.factor == 0:
                 # takes the last factor elements.
-                # BUG?: negative index here does not work
                 index = len(datas) - event.factor
                 t_data = datas[index:]
                 j_data = []
                 for d in t_data:
                     j_data.append(d.get_data())
-                # print "%s %s" % (data, da[-event.factor:])
                 logger.debug("sending %s %s of %s",(event.message_name, event.factor, j_data))
                 send_event(task, event, j_data)
-                # print ("Sent %s %s grouped by %s" % (event.message_name,  data, event.factor))
+        else:
+            raise Exception("Method not found")
 
 
 def send_event(task, event, data):

@@ -9,6 +9,8 @@ class Event(models.Model):
     EVENT_TYPE = (
         ('M', 'Multiply'),
         ('G', 'Group'),
+        ('F', 'Flat'),
+        ('S', 'Split'),
     )
     type = models.CharField(max_length=1, choices=EVENT_TYPE)
     factor = models.PositiveSmallIntegerField()
